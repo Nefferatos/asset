@@ -61,4 +61,15 @@ class DBHelper {
       });
     }
   }
+
+  Future<void> createUser({
+    required String username,
+    required String password,
+  }) async {
+    final db = await database;
+    await db.insert('users', {
+      'username': username,
+      'password': password,
+    });
+  }
 }

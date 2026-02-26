@@ -1,45 +1,63 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'create_account_screen.dart';
-import 'dashboard_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class CreateAccountScreen extends StatefulWidget {
+  const CreateAccountScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final usernameCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
+  final confirmPasswordCtrl = TextEditingController();
   final authService = AuthService();
   String errorMessage = '';
+  bool isLoading = false;
 
-  Future<void> login() async {
+  Future<void> createAccount() async {
     final username = usernameCtrl.text.trim();
     final password = passwordCtrl.text.trim();
+    final confirmPassword = confirmPasswordCtrl.text.trim();
 
-    if (username.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       setState(() {
-        errorMessage = 'Username and password are required';
+        errorMessage = 'All fields are required';
       });
       return;
     }
 
-    final authenticated = await authService.login(username, password);
+    if (password != confirmPassword) {
+      setState(() {
+        errorMessage = 'Passwords do not match';
+      });
+      return;
+    }
 
-    if (authenticated) {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+
+    try {
+      await authService.createUser(username, password);
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account created successfully')),
       );
-    } else {
+      Navigator.pop(context);
+    } catch (_) {
       if (!mounted) return;
       setState(() {
-        errorMessage = 'Invalid username or password';
+        errorMessage = 'Username already exists';
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -47,23 +65,19 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     usernameCtrl.dispose();
     passwordCtrl.dispose();
+    confirmPasswordCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Create Account')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Fixed Asset Inventory',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-
             TextField(
               controller: usernameCtrl,
               decoration: const InputDecoration(labelText: 'Username'),
@@ -73,24 +87,16 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
-
+            TextField(
+              controller: confirmPasswordCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: login,
-              child: const Text('Login'),
+              onPressed: isLoading ? null : createAccount,
+              child: Text(isLoading ? 'Creating...' : 'Create Account'),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const CreateAccountScreen(),
-                  ),
-                );
-              },
-              child: const Text('Create Account'),
-            ),
-
             if (errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 10),

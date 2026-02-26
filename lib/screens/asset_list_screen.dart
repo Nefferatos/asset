@@ -3,6 +3,7 @@ import '../models/asset.dart';
 import '../services/asset_service.dart';
 import '../services/csv_service.dart';
 import 'asset_form_screen.dart';
+import 'login_screen.dart';
 
 class AssetListScreen extends StatefulWidget {
   const AssetListScreen({super.key});
@@ -59,6 +60,14 @@ class _AssetListScreenState extends State<AssetListScreen> {
     );
   }
 
+  void _logout() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,6 +80,11 @@ class _AssetListScreenState extends State<AssetListScreen> {
       appBar: AppBar(
         title: const Text('Assets'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
+            tooltip: 'Logout',
+          ),
           IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: () async {

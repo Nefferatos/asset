@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/asset.dart';
 import '../services/asset_service.dart';
+import 'login_screen.dart';
 
 class SearchValidateScreen extends StatefulWidget {
   const SearchValidateScreen({super.key});
@@ -74,10 +75,27 @@ class _SearchValidateScreenState extends State<SearchValidateScreen> {
     super.dispose();
   }
 
+  void _logout() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Validate Asset')),
+      appBar: AppBar(
+        title: const Text('Validate Asset'),
+        actions: [
+          IconButton(
+            onPressed: _logout,
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
