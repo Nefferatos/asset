@@ -31,6 +31,12 @@ class DashboardScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            const Text(
+              'The Market Leader Who you can trust',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 30),
+            
             DashboardCard(
               title: 'Manage Assets',
               icon: Icons.inventory_2,
